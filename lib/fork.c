@@ -79,6 +79,9 @@ duppage(envid_t envid, unsigned pn)
 
 				if ((r = sys_page_alloc(envid, (void *)(UXSTACKTOP - PGSIZE), PTE_U | PTE_W | PTE_P)) < 0)
 					panic("sys_page_alloc: %e", r);
+			} else if ((uvpt[pn] & (PTE_P | PTE_U | PTE_SHARE)) == (PTE_P | PTE_U | PTE_SHARE)) {
+				if ((r = sys_page_map(0, (void *)(pn*PGSIZE), envid, (void *)(pn*PGSIZE), uvpt[pn] & PTE_SYSCALL)) < 0)
+					panic("sys_page_map: %d", r);
 			} else if ((uvpt[pn] & (PTE_P | PTE_U | PTE_W)) == (PTE_P | PTE_U | PTE_W) || (uvpt[pn] & (PTE_P | PTE_U | PTE_COW)) == (PTE_P | PTE_U | PTE_COW)) {
 				// writable or copy-on-write
 
@@ -89,10 +92,10 @@ duppage(envid_t envid, unsigned pn)
 					panic("sys_page_map: %e", r);	
 			} else {
 				assert((uvpt[pn] & PTE_U) == PTE_U);
-				if ((r = sys_page_map(0, (void *)(pn*PGSIZE), envid, (void *)(pn*PGSIZE), uvpt[pn] & 0xFFF)) < 0)
+				if ((r = sys_page_map(0, (void *)(pn*PGSIZE), envid, (void *)(pn*PGSIZE), uvpt[pn] & PTE_SYSCALL)) < 0) 
 					panic("sys_page_map: %e", r);
 			}
-		}
+		}	
 	}
 
 	// LAB 4: Your code here.

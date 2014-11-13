@@ -280,6 +280,12 @@ trap_dispatch(struct Trapframe *tf)
 		lapic_eoi();
 		sched_yield();
 		break;
+	case IRQ_OFFSET+IRQ_KBD:
+		kbd_intr();
+		return;
+	case IRQ_OFFSET+IRQ_SERIAL:
+		serial_intr();
+		return;
 	}
 
 	// Handle spurious interrupts
@@ -376,7 +382,7 @@ page_fault_handler(struct Trapframe *tf)
 
 	// Read processor's CR2 register to find the faulting address
 	fault_va = rcr2();
-	cprintf("%04x: page fault address %x\n", curenv->env_id, fault_va);
+	//cprintf("%04x: page fault address %x\n", curenv->env_id, fault_va);
 
 	// Handle kernel-mode page faults.
 

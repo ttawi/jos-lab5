@@ -444,6 +444,12 @@ env_create(uint8_t *binary, size_t size, enum EnvType type)
 
 	load_icode(newenv, binary, size);
 	newenv->env_type = type;
+
+	if (type == ENV_TYPE_FS) {
+		newenv->env_tf.tf_eflags |= FL_IOPL_3;
+	} else {
+		newenv->env_tf.tf_eflags |= FL_IOPL_0;
+	}
 }
 
 //
